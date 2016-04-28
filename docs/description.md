@@ -7,43 +7,37 @@ labour they have personally donated.
 ### Implementation
 
 *Social Hours* uses a distributed architecture based on the complementary currency system [groupcash](http://groupcash.org). 
-Each *Coin* represents an amount of hours volunteered for a social organisation. Using encryption and digital signatures,
+Each *coin* represents an amount of hours volunteered for a social organisation. Using encryption and digital signatures,
 the *hours* are independent of a central database and therefore can be freely exchanged between compatible systems.
 
 
-## Roadmap
+## Capabilities
 
-The first version consists of a web application that provides the following use cases
+The first version consists of a web application that provides the following capabilities
+
+### Create Account
+An account is created by providing an email address for authentication and optionally a name. A public/private key pair is generated to identify the account.
 
 ### Register Organisation
-A social Organisation registers with its name and the email address of the administrator for
-authentication. A public/private key pair is generated for digitally signing credited *hours*.
-The adminstrator is also Creditor of the Organisation.
-
-### Add Member
-Creditors can add Members to their Organisation by providing their name and email address. A public/private
-key pair is generated to identify the Member.
+A social Organisation registers with its name and the email address of the administrator for authentication. A public/private key pair is generated for digital signatures.
 
 ### Authorize Creditor
-The administrator can authorize a Member of the Organisation as *Creditor*. Creditors can credit *hours* to
-Members.
+The administrator of an organisation can authorize an account to be able to credit *social hours* in the name of the organisation.
 
-### Print Member Card
-A member card contains a code with the a URL that identifies the member and thus can be used to credit 
-*social hours* to them. Members can print their own card and Creditors can print cards for any added Member.
+### Encode Account
+An account address can be visually encoded to easily identify it on the field.
 
 ### Credit Hours
-Creditors can credit *hours* to voluteers.
+Creditors can credit a number of *social hours* to voluteers by providing a description of the work done and the account address of the volunteer (by scanning the visual code) or the name/email address the account was created with.
 
 ### Check Balance
-Members can see the history andof hours they have been credited.
+Account holders can see the history and current balance of *social hours* credited to them.
 
-### Show Credited Hours
-Creditors can see how many hours an Organisation has credited to what member.
+### Check Credited Hours
+Creditors can see how many *social hours* an organisation has credited to which accounts.
 
 ### Log In
-Members and Creditors log-in by providing their email address to which a unique link is sent. The user can choose to stay 
-logged-in indefinitely or until the browser window is closed.
+Users of the application (administrator, creditors, accounts) can log-in by providing their email address to which a unique link is sent. The user can choose to stay logged-in indefinitely or until the browser window is closed.
 
 ### Log Out
 Teminates the user session.
