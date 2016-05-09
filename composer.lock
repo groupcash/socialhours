@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a8f14dc1fec41df3462cdcd46910e318",
-    "content-hash": "e137511dffc9a2fdbc3cded37f0d5340",
+    "hash": "f13b8e877465043d3e2016f7e086cdc0",
+    "content-hash": "a10e9ac6c22de8e808ff351b467883e5",
     "packages": [
         {
             "name": "fgrosse/phpasn1",
@@ -204,6 +204,55 @@
             "time": "2015-09-19 14:15:08"
         },
         {
+            "name": "rtens/mockster",
+            "version": "v3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rtens/mockster.git",
+                "reference": "72718947820cf364c71ff2d6ee7f7068b27f07db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rtens/mockster/zipball/72718947820cf364c71ff2d6ee7f7068b27f07db",
+                "reference": "72718947820cf364c71ff2d6ee7f7068b27f07db",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5",
+                "watoki/factory": "1.*",
+                "watoki/reflect": "1.*"
+            },
+            "require-dev": {
+                "rtens/scrut": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "rtens\\mockster\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nikolas Martens",
+                    "email": "Nikolas.M@rtens.org",
+                    "homepage": "http://rtens.org"
+                }
+            ],
+            "description": "PHP Mocking framework",
+            "homepage": "http://github.com/rtens/mockster",
+            "keywords": [
+                "BDD",
+                "mock",
+                "mocking",
+                "unit testing"
+            ],
+            "time": "2016-02-17 05:58:18"
+        },
+        {
             "name": "symfony/console",
             "version": "v2.8.5",
             "source": {
@@ -366,6 +415,53 @@
                 "watoki"
             ],
             "time": "2015-08-07 08:22:49"
+        },
+        {
+            "name": "watoki/factory",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/watoki/factory.git",
+                "reference": "689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/watoki/factory/zipball/689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2",
+                "reference": "689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.8",
+                "watoki/reflect": "*"
+            },
+            "require-dev": {
+                "watoki/scrut": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "watoki\\factory": "src/",
+                    "spec\\watoki\\factory": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nikolas Martens",
+                    "email": "Nikolas.M@rtens.org",
+                    "homepage": "http://rtens.org"
+                }
+            ],
+            "description": "A simple dependency injection container for PHP",
+            "homepage": "http://github.com/watoki/factory",
+            "keywords": [
+                "dependency injection",
+                "watoki"
+            ],
+            "time": "2016-02-17 05:49:53"
         },
         {
             "name": "watoki/karma",
@@ -598,53 +694,6 @@
                 "test runner"
             ],
             "time": "2016-03-31 11:11:28"
-        },
-        {
-            "name": "watoki/factory",
-            "version": "v1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/watoki/factory.git",
-                "reference": "689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/watoki/factory/zipball/689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2",
-                "reference": "689d178b1f475ae34e6f1b1bdaa3d17d07cee2f2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.8",
-                "watoki/reflect": "*"
-            },
-            "require-dev": {
-                "watoki/scrut": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "watoki\\factory": "src/",
-                    "spec\\watoki\\factory": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nikolas Martens",
-                    "email": "Nikolas.M@rtens.org",
-                    "homepage": "http://rtens.org"
-                }
-            ],
-            "description": "A simple dependency injection container for PHP",
-            "homepage": "http://github.com/watoki/factory",
-            "keywords": [
-                "dependency injection",
-                "watoki"
-            ],
-            "time": "2016-02-17 05:49:53"
         }
     ],
     "aliases": [],

@@ -5,6 +5,10 @@ use groupcash\php\Groupcash;
 use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\events\AccountCreated;
 use groupcash\socialhours\events\OrganisationRegistered;
+use groupcash\socialhours\events\TokenDestroyed;
+use groupcash\socialhours\events\TokenGenerated;
+use groupcash\socialhours\LogIn;
+use groupcash\socialhours\LogOut;
 use groupcash\socialhours\RegisterOrganisation;
 
 class SocialHours {
@@ -15,9 +19,19 @@ class SocialHours {
     private $accounts = [];
     /** @var string[] */
     private $organisations = [];
+    /** @var string[] */
+    private $activeTokens = [];
 
     public function __construct(Groupcash $groupcash) {
         $this->groupcash = $groupcash;
+    }
+
+    /**
+     * @param $binary
+     * @return string
+     */
+    public static function tokenFromBinary($binary) {
+        return substr((string)$binary, -16);
     }
 
     public function handleCreateAccount(CreateAccount $c) {
@@ -72,5 +86,32 @@ class SocialHours {
         if (in_array(strtolower($name), array_map('strtolower', $this->organisations))) {
             throw new \Exception('An organisation with this name is already registered.');
         }
+    }
+
+    public function handleLogIn(LogIn $c) {
+        if (!in_array($c->getEmail(), $this->accounts) && !isset($this->organisations[$c->getEmail()])) {
+            throw new \Exception('No account with this email address exists.');
+        }
+
+        return new TokenGenerated(
+            Time::now(),
+            self::tokenFromBinary($this->groupcash->generateKey()),
+            $c->getEmail()
+        );
+    }
+
+    public function applyTokenGenerated(TokenGenerated $e) {
+        $this->activeTokens[] = $e->getToken();
+    }
+
+    public function handleLogOut(LogOut $c) {
+        if (!in_array($c->getToken(), $this->activeTokens)) {
+            throw new \Exception('Invalid token.');
+        }
+
+        return new TokenDestroyed(
+            Time::now(),
+            $c->getToken()
+        );
     }
 }

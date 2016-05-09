@@ -5,7 +5,8 @@
   "require": {
     "groupcash/php": "dev-master",
     "watoki/karma": "dev-master",
-    "watoki/stores": "dev-master"
+    "watoki/stores": "dev-master",
+    "rtens/mockster": "3.*"
   },
   "require-dev": {
     "rtens/scrut": "1.*"

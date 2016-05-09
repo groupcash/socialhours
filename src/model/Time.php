@@ -5,8 +5,8 @@ class Time {
 
     private static $frozen;
 
-    public static function freeze(\DateTimeImmutable $when) {
-        self::$frozen = $when;
+    public static function freeze(\DateTimeImmutable $when = null) {
+        self::$frozen = $when ?: self::now();
     }
 
     /**
