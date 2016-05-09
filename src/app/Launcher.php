@@ -3,13 +3,9 @@ namespace groupcash\socialhours\app;
 
 use groupcash\php\Groupcash;
 use groupcash\php\model\signing\Algorithm;
-use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\events\TokenGenerated;
-use groupcash\socialhours\LogIn;
-use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
-use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericObjectAction;
@@ -34,10 +30,9 @@ class Launcher {
 
     public function run() {
         WebDelivery::quickResponse(IndexResource::class, WebApplication::init(function (WebApplication $app) {
-            $this->addAction($app, LogIn::class);
-            $this->addAction($app, CreateAccount::class);
-            $this->addAction($app, RegisterOrganisation::class);
-            $this->addAction($app, LogOut::class);
+            foreach ($this->findActions() as $class) {
+                $this->addAction($app, $class);
+            }
         }, WebDelivery::init()));
     }
 
@@ -58,5 +53,13 @@ class Launcher {
                 $e->getToken()
             );
         }, TokenGenerated::class);
+    }
+
+    private function findActions() {
+        $classes = get_declared_classes();
+        foreach (glob(__DIR__ . '/../*.php') as $file) {
+            include_once $file;
+        }
+        return array_diff(get_declared_classes(), $classes);
     }
 }
