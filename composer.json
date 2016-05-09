@@ -1,0 +1,29 @@
+{
+  "name": "groupcash/socialhours",
+  "description": "A web application to certify social work",
+  "type": "application",
+  "require": {
+    "groupcash/php": "dev-master",
+    "watoki/karma": "dev-master",
+    "watoki/stores": "dev-master"
+  },
+  "require-dev": {
+    "rtens/scrut": "1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "groupcash\\socialhours\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "spec\\groupcash\\socialhours\\": "spec/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Nikolas Martens",
+      "email": "Nikolas.M@rtens.org"
+    }
+  ]
+}

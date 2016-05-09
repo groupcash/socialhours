@@ -25,7 +25,7 @@ A social Organisation registers with its name and the email address of the admin
 The administrator of an organisation can authorize an account to be able to credit *social hours* in the name of the organisation.
 
 ### Credit Hours
-Creditors can credit a number of *social hours* to voluteers by providing a description of the work done and the name or email address the account was created with.
+Creditors can credit a number of *social hours* to volunteers by providing a description of the work done and the name or email address the account was created with.
 
 ### Check Balance
 Account holders can see the history and current balance of *social hours* credited to them.
