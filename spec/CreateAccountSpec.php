@@ -1,32 +1,12 @@
 <?php
 namespace spec\groupcash\socialhours;
 
-use groupcash\php\algorithms\FakeAlgorithm;
-use groupcash\php\Groupcash;
 use groupcash\php\model\signing\Binary;
 use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\events\AccountCreated;
-use groupcash\socialhours\model\SocialHours;
 use groupcash\socialhours\model\Time;
-use watoki\karma\implementations\aggregates\ObjectAggregateFactory;
-use watoki\karma\implementations\GenericApplication;
-use watoki\karma\stores\EventStore;
-use watoki\karma\testing\Specification;
 
-class CreateAccountSpec extends Specification {
-
-    /** @var FakeAlgorithm */
-    private $algorithm;
-
-    public function __construct() {
-        $this->algorithm = new FakeAlgorithm();
-
-        parent::__construct(function (EventStore $store) {
-            return new GenericApplication($store, new ObjectAggregateFactory(function () {
-                return new SocialHours(new Groupcash($this->algorithm));
-            }));
-        });
-    }
+class CreateAccountSpec extends SocialHoursSpecification {
 
     function before() {
         $this->algorithm->nextKey = 'foo';
