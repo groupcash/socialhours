@@ -28,10 +28,12 @@ class CreateAccountSpec extends Specification {
         });
     }
 
-    function onlyEmail() {
+    function before() {
         $this->algorithm->nextKey = 'foo';
         Time::freeze(new \DateTimeImmutable('2011-12-13 14:15:16 UTC'));
+    }
 
+    function onlyEmail() {
         $this->when(new CreateAccount('foo@bar.com'));
         $this->then(new AccountCreated(
             new \DateTimeImmutable('2011-12-13 14:15:16 UTC'),
@@ -39,5 +41,12 @@ class CreateAccountSpec extends Specification {
             new Binary('foo'),
             new Binary('foo key')
         ));
+    }
+
+    function emailAndName() {
+        $this->when(new CreateAccount('foo@bar.com', 'Foo Bar'));
+        $this->then->shouldMatchObject(AccountCreated::class, function (AccountCreated $accountCreated) {
+            return $accountCreated->getName() == 'Foo Bar';
+        });
     }
 }

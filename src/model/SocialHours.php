@@ -22,7 +22,8 @@ class SocialHours {
             Time::now(),
             $c->getEmail(),
             $address,
-            $key
+            $key,
+            $c->getName()
         );
     }
 }
