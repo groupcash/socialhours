@@ -9,12 +9,18 @@ class SocialHours {
 
     /** @var Groupcash */
     private $groupcash;
+    /** @var string[] */
+    private $accounts = [];
 
     public function __construct(Groupcash $groupcash) {
         $this->groupcash = $groupcash;
     }
 
     public function handleCreateAccount(CreateAccount $c) {
+        if (in_array($c->getEmail(), $this->accounts)) {
+            throw new \Exception('An account with this email address was already created.');
+        }
+
         $key = $this->groupcash->generateKey();
         $address = $this->groupcash->getAddress($key);
 
@@ -25,5 +31,9 @@ class SocialHours {
             $key,
             $c->getName()
         );
+    }
+
+    public function applyAccountCreated(AccountCreated $e) {
+        $this->accounts[] = $e->getEmail();
     }
 }

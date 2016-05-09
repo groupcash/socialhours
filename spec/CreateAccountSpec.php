@@ -29,4 +29,16 @@ class CreateAccountSpec extends SocialHoursSpecification {
             return $accountCreated->getName() == 'Foo Bar';
         });
     }
+
+    function alreadyCreatedWithEmail() {
+        $this->when(new CreateAccount('foo@bar.com'));
+        $this->when->tryTo(new CreateAccount('foo@bar.com'));
+        $this->then->shouldFail('An account with this email address was already created.');
+    }
+
+    function ignoreCaseAndSpacesInEmail() {
+        $this->when(new CreateAccount('foo@BAR.com '));
+        $this->when->tryTo(new CreateAccount(' FOO@bar.com'));
+        $this->then->shouldFail('An account with this email address was already created.');
+    }
 }

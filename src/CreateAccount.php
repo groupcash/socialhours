@@ -13,7 +13,7 @@ class CreateAccount {
      * @param null|string $name
      */
     public function __construct($email, $name = null) {
-        $this->email = $email;
+        $this->email = trim(strtolower($email));
         $this->name = $name;
     }
 
