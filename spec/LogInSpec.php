@@ -59,10 +59,7 @@ class LogInSpec extends SocialHoursSpecification {
     function sendEmail() {
         $this->when(new LogIn('foo@bar.com'));
         Mockster::stub($this->postOffice->send(
-            Argument::string(),
-            'foo@bar.com',
-            Argument::string(),
-            Argument::contains($this->token)
+            'foo@bar.com', Argument::string(), Argument::contains($this->token)
         ))->shouldHave()->beenCalled(1);
     }
 }

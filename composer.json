@@ -6,9 +6,12 @@
     "groupcash/php": "dev-master",
     "watoki/karma": "dev-master",
     "watoki/stores": "dev-master",
-    "rtens/mockster": "3.*"
+    "rtens/domin": "dev-master",
+    "watoki/deli": "dev-master",
+    "watoki/curir": "dev-master"
   },
   "require-dev": {
+    "rtens/mockster": "3.*",
     "rtens/scrut": "1.*"
   },
   "autoload": {
