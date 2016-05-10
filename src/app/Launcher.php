@@ -47,6 +47,7 @@ class Launcher {
 
     public function run() {
         WebDelivery::quickResponse(IndexResource::class, WebApplication::init(function (WebApplication $app) {
+            $app->setNameAndBrand('Social Hours');
             foreach ($this->findActions() as $class) {
                 $this->addAction($app, $class);
             }
