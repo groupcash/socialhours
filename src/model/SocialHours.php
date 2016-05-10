@@ -37,7 +37,7 @@ class SocialHours {
      * @return string
      */
     public static function tokenFromBinary($binary) {
-        return substr((string)$binary, -16);
+        return substr(trim((string)$binary, '='), -16);
     }
 
     public function handleCreateAccount(CreateAccount $c) {
