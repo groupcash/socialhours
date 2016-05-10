@@ -3,11 +3,13 @@ namespace groupcash\socialhours\app;
 
 use groupcash\php\Groupcash;
 use groupcash\php\model\signing\Algorithm;
-use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\CheckBalance;
+use groupcash\socialhours\CheckCreditedHours;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
+use groupcash\socialhours\projections\Balance;
+use groupcash\socialhours\projections\CreditedHours;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericObjectAction;
@@ -31,6 +33,8 @@ class Launcher {
             new ObjectProjectionFactory(function ($query) {
                 if ($query instanceof CheckBalance) {
                     return new Balance($query);
+                } else if ($query instanceof CheckCreditedHours) {
+                    return new CreditedHours($query);
                 }
 
                 throw new \Exception('Unknown query.');

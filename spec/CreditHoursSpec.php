@@ -43,7 +43,7 @@ class CreditHoursSpec extends SocialHoursSpecification {
         $this->given(new TokenGenerated(Time::now(), 'my token', 'creditor@foo'));
         $this->given(new AccountCreated(Time::now(), 'volunteer@foo', new Binary('volunteer'), new Binary('volunteer key')));
         $this->when(new CreditHours('my token', 'Foo', 'volunteer@foo', 'Good work', 1));
-        $this->then(new HoursCredited(Time::now(), 'Foo', 'volunteer@foo', 'Good work', 1));
+        $this->then(new HoursCredited(Time::now(), 'Foo', 'creditor@foo', 'volunteer@foo', 'Good work', 1));
     }
 
     function creditAsAdministrator() {
@@ -51,6 +51,6 @@ class CreditHoursSpec extends SocialHoursSpecification {
         $this->given(new TokenGenerated(Time::now(), 'my token', 'admin@foo'));
         $this->given(new AccountCreated(Time::now(), 'volunteer@foo', new Binary('volunteer'), new Binary('volunteer key')));
         $this->when(new CreditHours('my token', 'Foo', 'volunteer@foo', 'Good work', 1));
-        $this->then(new HoursCredited(Time::now(), 'Foo', 'volunteer@foo', 'Good work', 1));
+        $this->then(new HoursCredited(Time::now(), 'Foo', 'admin@foo', 'volunteer@foo', 'Good work', 1));
     }
 }

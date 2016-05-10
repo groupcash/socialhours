@@ -159,6 +159,7 @@ class SocialHours {
         return new HoursCredited(
             Time::now(),
             $c->getOrganisation(),
+            $email,
             $c->getVolunteerEmail(),
             $c->getDescription(),
             $c->getMinutes()

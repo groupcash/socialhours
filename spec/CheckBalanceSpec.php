@@ -22,19 +22,19 @@ class CheckBalanceSpec extends SocialHoursSpecification {
     }
 
     function oneCredit() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'One', 30));
+        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'One', 30));
         $this->given(new TokenGenerated(Time::now(), 'my token', 'foo@bar'));
         $this->when(new CheckBalance('my token'));
         $this->then->returnShouldMatch(function (Balance $balance) {
             return $balance->getHistory() == [
-                new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'One', 30)
+                new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'One', 30)
             ];
         });
     }
 
     function sumHours() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'One', 30));
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'Two', 45));
+        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'One', 30));
+        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'Two', 45));
         $this->given(new TokenGenerated(Time::now(), 'my token', 'foo@bar'));
         $this->when(new CheckBalance('my token'));
         $this->then->returnShouldMatch(function (Balance $balance) {
@@ -43,7 +43,7 @@ class CheckBalanceSpec extends SocialHoursSpecification {
     }
 
     function invalidToken() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'One', 30));
+        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'One', 30));
         $this->given(new TokenGenerated(Time::now(), 'my token', 'foo@bar'));
         $this->when(new CheckBalance('wrong token'));
         $this->then->returnShouldMatchAll(function (Balance $balance) {
@@ -55,7 +55,7 @@ class CheckBalanceSpec extends SocialHoursSpecification {
     }
 
     function invalidatedToken() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'foo@bar', 'One', 30));
+        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'foo@bar', 'One', 30));
         $this->given(new TokenGenerated(Time::now(), 'my token', 'foo@bar'));
         $this->given(new TokenDestroyed(Time::now(), 'my token'));
         $this->when(new CheckBalance('my token'));

@@ -13,20 +13,31 @@ class HoursCredited {
     private $minutes;
     /** @var \DateTimeImmutable */
     private $when;
+    /** @var string */
+    private $creditorEmail;
 
     /**
      * @param \DateTimeImmutable $when
      * @param string $organisation
+     * @param string $creditorEmail
      * @param string $volunteerEmail
      * @param string $description
      * @param int $minutes
      */
-    public function __construct(\DateTimeImmutable $when, $organisation, $volunteerEmail, $description, $minutes) {
+    public function __construct(\DateTimeImmutable $when, $organisation, $creditorEmail, $volunteerEmail, $description, $minutes) {
         $this->organisation = $organisation;
         $this->volunteerEmail = $volunteerEmail;
         $this->description = $description;
         $this->minutes = $minutes;
         $this->when = $when;
+        $this->creditorEmail = $creditorEmail;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreditorEmail() {
+        return $this->creditorEmail;
     }
 
     /**
