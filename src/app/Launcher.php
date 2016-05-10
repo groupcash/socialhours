@@ -3,6 +3,8 @@ namespace groupcash\socialhours\app;
 
 use groupcash\php\Groupcash;
 use groupcash\php\model\signing\Algorithm;
+use groupcash\socialhours\projections\Balance;
+use groupcash\socialhours\CheckBalance;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
@@ -13,6 +15,7 @@ use watoki\curir\WebDelivery;
 use watoki\karma\implementations\aggregates\ObjectAggregateFactory;
 use watoki\karma\implementations\GenericApplication;
 use watoki\karma\implementations\listeners\ObjectListener;
+use watoki\karma\implementations\projections\ObjectProjectionFactory;
 use watoki\karma\stores\EventStore;
 
 class Launcher {
@@ -24,8 +27,18 @@ class Launcher {
         $this->application = (new GenericApplication($store,
             new ObjectAggregateFactory(function () use ($algorithm, $postOffice) {
                 return new SocialHours(new Groupcash($algorithm));
+            }),
+            new ObjectProjectionFactory(function ($query) {
+                if ($query instanceof CheckBalance) {
+                    return new Balance($query);
+                }
+
+                throw new \Exception('Unknown query.');
+            })))
+            ->setCommandCondition(function ($command) {
+                return substr((new \ReflectionClass($command))->getShortName(), 0, 5) !== 'Check';
             })
-        ))->addListener($this->tokenGeneratedListener($postOffice));
+            ->addListener($this->tokenGeneratedListener($postOffice));
     }
 
     public function run() {
