@@ -119,6 +119,10 @@ class SocialHours {
         );
     }
 
+    public function applyTokenDestroyed(TokenDestroyed $e) {
+        unset($this->activeTokens[$e->getToken()]);
+    }
+
     public function handleAuthorizeCreditor(AuthorizeCreditor $c) {
         $email = $this->guardValidToken($c->getToken());
 

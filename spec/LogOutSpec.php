@@ -1,6 +1,7 @@
 <?php
 namespace spec\groupcash\socialhours;
 
+use groupcash\socialhours\AuthorizeCreditor;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\LogOut;
@@ -17,5 +18,12 @@ class LogOutSpec extends SocialHoursSpecification {
         $this->given(new TokenGenerated(Time::now(), 'some token', 'foo@bar.com'));
         $this->when(new LogOut('some token'));
         $this->then(new TokenDestroyed(Time::now(), 'some token'));
+    }
+
+    function invalidateToken() {
+        $this->given(new TokenGenerated(Time::now(), 'some token', 'foo@bar'));
+        $this->given(new TokenDestroyed(Time::now(), 'some token'));
+        $this->when->tryTo(new AuthorizeCreditor('some token', 'creditor@foo'));
+        $this->then->shouldFail('Invalid token.');
     }
 }
