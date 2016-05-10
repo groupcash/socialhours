@@ -32,12 +32,8 @@ class SocialHours {
         $this->groupcash = $groupcash;
     }
 
-    /**
-     * @param $binary
-     * @return string
-     */
     public static function tokenFromBinary($binary) {
-        return substr(trim((string)$binary, '='), -16);
+        return substr(str_replace(['=', '/', '+'], '', (string)$binary), -16);
     }
 
     public function handleCreateAccount(CreateAccount $c) {
