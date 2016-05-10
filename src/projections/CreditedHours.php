@@ -48,14 +48,14 @@ class CreditedHours {
         $this->history[] = $e;
     }
 
-    public function getHistory() {
-        return $this->filteredHistory();
-    }
-
     public function getTotalHours() {
         return array_sum(array_map(function (HoursCredited $e) {
             return $e->getMinutes();
         }, $this->filteredHistory())) / 60;
+    }
+
+    public function getHistory() {
+        return $this->filteredHistory();
     }
 
     private function filteredHistory() {

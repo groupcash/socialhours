@@ -56,7 +56,7 @@ class Launcher {
     private function addAction(WebApplication $app, $class) {
         $id = (new \ReflectionClass($class))->getShortName();
         $execute = function ($action) {
-            $this->application->handle($action);
+            return $this->application->handle($action);
         };
 
         return $app->actions->add($id, new GenericObjectAction($class, $app->types, $app->parser, $execute));
