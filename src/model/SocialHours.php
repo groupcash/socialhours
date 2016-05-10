@@ -2,8 +2,10 @@
 namespace groupcash\socialhours\model;
 
 use groupcash\php\Groupcash;
+use groupcash\socialhours\AuthorizeCreditor;
 use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\events\AccountCreated;
+use groupcash\socialhours\events\CreditorAuthorized;
 use groupcash\socialhours\events\OrganisationRegistered;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
@@ -15,11 +17,11 @@ class SocialHours {
 
     /** @var Groupcash */
     private $groupcash;
-    /** @var string[] */
+    /** @var string[] Emails */
     private $accounts = [];
-    /** @var string[] */
+    /** @var string[] Names indexed by emails */
     private $organisations = [];
-    /** @var string[] */
+    /** @var string[] Emails indexed by tokens */
     private $activeTokens = [];
 
     public function __construct(Groupcash $groupcash) {
@@ -101,17 +103,39 @@ class SocialHours {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[] = $e->getToken();
+        $this->activeTokens[$e->getToken()] = $e->getEmail();
     }
 
     public function handleLogOut(LogOut $c) {
-        if (!in_array($c->getToken(), $this->activeTokens)) {
-            throw new \Exception('Invalid token.');
-        }
+        $this->guardValidToken($c->getToken());
 
         return new TokenDestroyed(
             Time::now(),
             $c->getToken()
         );
+    }
+
+    public function handleAuthorizeCreditor(AuthorizeCreditor $c) {
+        $this->guardValidToken($c->getToken());
+
+        if (!isset($this->organisations[$this->activeTokens[$c->getToken()]])) {
+            throw new \Exception('Only administrators of organisations can authorize creditors.');
+        }
+
+        if (!in_array($c->getCreditorEmail(), $this->accounts)) {
+            throw new \Exception('No account was created with this email address.');
+        }
+
+        return new CreditorAuthorized(
+            Time::now(),
+            $this->organisations[$this->activeTokens[$c->getToken()]],
+            $c->getCreditorEmail()
+        );
+    }
+
+    private function guardValidToken($token) {
+        if (!isset($this->activeTokens[$token])) {
+            throw new \Exception('Invalid token.');
+        }
     }
 }
