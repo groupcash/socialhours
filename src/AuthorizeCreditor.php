@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Authorizes an account to be able to credit social hours in the name of an organisation.
+ */
 class AuthorizeCreditor {
 
     /** @var string */

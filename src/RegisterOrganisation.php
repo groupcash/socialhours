@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Registers a new social organisation authenticated by email.
+ */
 class RegisterOrganisation {
 
     /** @var string */

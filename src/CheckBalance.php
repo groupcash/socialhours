@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Lists the received social hours of an account.
+ */
 class CheckBalance {
 
     /** @var string */

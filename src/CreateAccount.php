@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Creates a new account authenticated by email.
+ */
 class CreateAccount {
 
     /** @var string */

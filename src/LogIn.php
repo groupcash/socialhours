@@ -1,6 +1,11 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Creates a new log-in token for an account.
+ *
+ * The token will be sent to the email address.
+ */
 class LogIn {
 
     /** @var string */

@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Invalidates a log-in token.
+ */
 class LogOut {
 
     /** @var string */

@@ -1,6 +1,9 @@
 <?php
 namespace groupcash\socialhours;
 
+/**
+ * Credits an amount of social hours to an account.
+ */
 class CreditHours {
 
     /** @var string */
