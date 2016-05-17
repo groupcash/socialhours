@@ -17,30 +17,26 @@ class RegisterOrganisationSpec extends SocialHoursSpecification {
     function success() {
         $this->when(new RegisterOrganisation('Foo ', 'foo@bar.com'));
         $this->then(new OrganisationRegistered(
-            new \DateTimeImmutable('2011-12-13 14:15:16 UTC'),
-            'Foo',
-            'foo@bar.com',
-            new Binary('social'),
-            new Binary('social key')
+            new \DateTimeImmutable('2011-12-13 14:15:16 UTC'), new Binary('social'), new Binary('social key'), 'foo@bar.com', 'Foo'
         ));
     }
 
     function emailTaken() {
         $this->when(new RegisterOrganisation('Foo', 'foo@bar.com'));
         $this->when->tryTo(new RegisterOrganisation('Bar', 'foo@bar.com'));
-        $this->then->shouldFail('An organisation with this email address is already registered.');
+        $this->then->shouldFail('An account with this email address already exists.');
     }
 
     function emailTakenByAccount() {
         $this->when(new CreateAccount('foo@bar.com'));
         $this->when->tryTo(new RegisterOrganisation('Bar', 'foo@bar.com'));
-        $this->then->shouldFail('An account with this email address was already created.');
+        $this->then->shouldFail('An account with this email address already exists.');
     }
 
     function ignoreEmailCaseAndSpaces() {
         $this->when(new RegisterOrganisation('Foo', 'foo@BAR.com '));
         $this->when->tryTo(new RegisterOrganisation('Bar', ' FOO@bar.com'));
-        $this->then->shouldFail('An organisation with this email address is already registered.');
+        $this->then->shouldFail('An account with this email address already exists.');
     }
 
     function nameTaken() {

@@ -1,43 +1,38 @@
 <?php
 namespace groupcash\socialhours\events;
 
+use groupcash\php\model\signing\Binary;
+
 class HoursCredited {
 
-    /** @var string */
+    /** @var \DateTimeImmutable */
+    private $when;
+    /** @var Binary */
+    private $creditor;
+    /** @var Binary */
     private $organisation;
-    /** @var string */
-    private $volunteerEmail;
+    /** @var Binary */
+    private $volunteer;
     /** @var string */
     private $description;
     /** @var int */
     private $minutes;
-    /** @var \DateTimeImmutable */
-    private $when;
-    /** @var string */
-    private $creditorEmail;
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $organisation
-     * @param string $creditorEmail
-     * @param string $volunteerEmail
+     * @param Binary $creditor
+     * @param Binary $organisation
+     * @param Binary $volunteer
      * @param string $description
      * @param int $minutes
      */
-    public function __construct(\DateTimeImmutable $when, $organisation, $creditorEmail, $volunteerEmail, $description, $minutes) {
+    public function __construct(\DateTimeImmutable $when, Binary $creditor, Binary $organisation, Binary $volunteer, $description, $minutes) {
+        $this->when = $when;
         $this->organisation = $organisation;
-        $this->volunteerEmail = $volunteerEmail;
+        $this->creditor = $creditor;
+        $this->volunteer = $volunteer;
         $this->description = $description;
         $this->minutes = $minutes;
-        $this->when = $when;
-        $this->creditorEmail = $creditorEmail;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCreditorEmail() {
-        return $this->creditorEmail;
     }
 
     /**
@@ -48,17 +43,24 @@ class HoursCredited {
     }
 
     /**
-     * @return string
+     * @return Binary
+     */
+    public function getCreditor() {
+        return $this->creditor;
+    }
+
+    /**
+     * @return Binary
      */
     public function getOrganisation() {
         return $this->organisation;
     }
 
     /**
-     * @return string
+     * @return Binary
      */
-    public function getVolunteerEmail() {
-        return $this->volunteerEmail;
+    public function getVolunteer() {
+        return $this->volunteer;
     }
 
     /**

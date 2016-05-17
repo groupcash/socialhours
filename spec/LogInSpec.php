@@ -21,7 +21,7 @@ class LogInSpec extends SocialHoursSpecification {
         $this->algorithm->nextKey = 'this is the brand new token';
         $this->token = SocialHours::tokenFromBinary(new Binary('this is the brand new token key'));
 
-        $this->given(new AccountCreated(Time::now(), 'foo@bar.com', new Binary('my key'), new Binary('my address')));
+        $this->given(new AccountCreated(Time::now(), new Binary('foo'), new Binary('foo key'), 'foo'));
     }
 
     function emailNotExisting() {
@@ -30,37 +30,31 @@ class LogInSpec extends SocialHoursSpecification {
     }
 
     function generateTokenForAccount() {
-        $this->when(new LogIn('foo@bar.com'));
+        $this->when(new LogIn('foo'));
         $this->then(new TokenGenerated(
-            Time::now(),
-            $this->token,
-            'foo@bar.com'
+            Time::now(), $this->token, new Binary('foo'), 'foo'
         ));
     }
 
     function generateTokenForOrganisation() {
-        $this->given(new OrganisationRegistered(Time::now(), 'Foo', 'baz@bar.com', new Binary('my key'), new Binary('my address')));
-        $this->when(new LogIn('baz@bar.com'));
+        $this->given(new OrganisationRegistered(Time::now(), new Binary('bar'), new Binary('bar key'), 'bar', 'Bar'));
+        $this->when(new LogIn('bar'));
         $this->then(new TokenGenerated(
-            Time::now(),
-            $this->token,
-            'baz@bar.com'
+            Time::now(), $this->token, new Binary('bar'), 'bar'
         ));
     }
 
     function ignoreEmailCaseAndSpaces() {
-        $this->when(new LogIn(' FOO@bar.com '));
+        $this->when(new LogIn(' FOO '));
         $this->then(new TokenGenerated(
-            Time::now(),
-            $this->token,
-            'foo@bar.com'
+            Time::now(), $this->token, new Binary('foo'), 'foo'
         ));
     }
 
     function sendEmail() {
-        $this->when(new LogIn('foo@bar.com'));
+        $this->when(new LogIn('foo'));
         Mockster::stub($this->postOffice->send(
-            'foo@bar.com', Argument::string(), Argument::contains((string)$this->token)
+            'foo', Argument::string(), Argument::contains((string)$this->token)
         ))->shouldHave()->beenCalled(1);
     }
 }

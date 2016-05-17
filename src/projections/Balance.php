@@ -24,7 +24,7 @@ class Balance {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getAddress();
     }
 
     public function applyTokenDestroyed(TokenDestroyed $e) {
@@ -49,7 +49,7 @@ class Balance {
         return array_filter($this->history, function (HoursCredited $e) {
             return
                 isset($this->activeTokens[(string)$this->token])
-                && $e->getVolunteerEmail() == $this->activeTokens[(string)$this->token];
+                && $e->getVolunteer() == $this->activeTokens[(string)$this->token];
         });
     }
 }

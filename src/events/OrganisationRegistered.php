@@ -18,12 +18,12 @@ class OrganisationRegistered {
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $name
-     * @param string $adminEmail
      * @param Binary $address
      * @param Binary $key
+     * @param string $adminEmail
+     * @param string $name
      */
-    public function __construct($when, $name, $adminEmail, $address, $key) {
+    public function __construct($when, Binary $address, Binary $key, $adminEmail, $name) {
         $this->when = $when;
         $this->name = $name;
         $this->adminEmail = $adminEmail;

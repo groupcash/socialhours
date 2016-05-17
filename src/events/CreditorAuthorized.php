@@ -1,24 +1,26 @@
 <?php
 namespace groupcash\socialhours\events;
 
+use groupcash\php\model\signing\Binary;
+
 class CreditorAuthorized {
 
     /** @var \DateTimeImmutable */
     private $when;
-    /** @var string */
+    /** @var Binary */
     private $organisation;
-    /** @var string */
-    private $creditorEmail;
+    /** @var Binary */
+    private $creditor;
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $organisation
-     * @param string $creditorEmail
+     * @param Binary $organisation
+     * @param Binary $creditor
      */
-    public function __construct(\DateTimeImmutable $when, $organisation, $creditorEmail) {
+    public function __construct(\DateTimeImmutable $when, Binary $organisation, Binary $creditor) {
         $this->when = $when;
         $this->organisation = $organisation;
-        $this->creditorEmail = $creditorEmail;
+        $this->creditor = $creditor;
     }
 
     /**
@@ -29,16 +31,16 @@ class CreditorAuthorized {
     }
 
     /**
-     * @return string
+     * @return Binary
      */
     public function getOrganisation() {
         return $this->organisation;
     }
 
     /**
-     * @return string
+     * @return Binary
      */
-    public function getCreditorEmail() {
-        return $this->creditorEmail;
+    public function getCreditor() {
+        return $this->creditor;
     }
 }

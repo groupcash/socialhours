@@ -1,6 +1,7 @@
 <?php
 namespace groupcash\socialhours\projections;
 
+use groupcash\php\model\signing\Binary;
 use groupcash\socialhours\CheckCreditedHours;
 use groupcash\socialhours\events\CreditorAuthorized;
 use groupcash\socialhours\events\HoursCredited;
@@ -13,11 +14,11 @@ class CreditedHours {
 
     /** @var Token */
     private $token;
-    /** @var string Email indexed by token */
-    private $activeTokens;
+    /** @var Binary[] indexed by token */
+    private $activeTokens = [];
     /** @var HoursCredited[] */
     private $history = [];
-    /** @var string[][] Organisations indexed by email */
+    /** @var string[][] Organisations indexed by address */
     private $creditors = [];
     /** @var string[] Name indexed by email of administrator */
     private $organisations = [];
@@ -30,7 +31,7 @@ class CreditedHours {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getAddress();
     }
 
     public function applyTokenDestroyed(TokenDestroyed $e) {
@@ -38,7 +39,7 @@ class CreditedHours {
     }
 
     public function applyCreditorAuthorized(CreditorAuthorized $e) {
-        $this->creditors[$e->getCreditorEmail()][] = $e->getOrganisation();
+        $this->creditors[(string)$e->getCreditor()][] = $e->getOrganisation();
     }
 
     public function applyOrganisationRegistered(OrganisationRegistered $e) {

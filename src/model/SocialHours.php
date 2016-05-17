@@ -2,6 +2,7 @@
 namespace groupcash\socialhours\model;
 
 use groupcash\php\Groupcash;
+use groupcash\php\model\signing\Binary;
 use groupcash\socialhours\AuthorizeCreditor;
 use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\CreditHours;
@@ -19,20 +20,20 @@ class SocialHours {
 
     /** @var Groupcash */
     private $groupcash;
-    /** @var string[] Emails */
+    /** @var Binary[] indexed by emails */
     private $accounts = [];
-    /** @var string[] Names indexed by emails */
+    /** @var Binary[] indexed by names */
     private $organisations = [];
-    /** @var string[] Emails indexed by tokens */
+    /** @var Binary[] indexed by tokens */
     private $activeTokens = [];
-    /** @var string[][] Emails grouped by organisation name */
+    /** @var Binary[][] grouped by organisation address */
     private $creditors = [];
 
     public function __construct(Groupcash $groupcash) {
         $this->groupcash = $groupcash;
     }
 
-    public static function tokenFromBinary($binary) {
+    public static function tokenFromBinary(Binary $binary) {
         return new Token(substr(str_replace(['=', '/', '+'], '', (string)$binary), -16));
     }
 
@@ -43,16 +44,12 @@ class SocialHours {
         $address = $this->groupcash->getAddress($key);
 
         return new AccountCreated(
-            Time::now(),
-            $c->getEmail(),
-            $address,
-            $key,
-            $c->getName()
+            Time::now(), $address, $key, $c->getEmail(), $c->getName()
         );
     }
 
     public function applyAccountCreated(AccountCreated $e) {
-        $this->accounts[] = $e->getEmail();
+        $this->accounts[$e->getEmail()] = $e->getAddress();
     }
 
     public function handleRegisterOrganisation(RegisterOrganisation $c) {
@@ -63,47 +60,43 @@ class SocialHours {
         $address = $this->groupcash->getAddress($key);
 
         return new OrganisationRegistered(
-            Time::now(),
-            $c->getName(),
-            $c->getAdminEmail(),
-            $address,
-            $key
+            Time::now(), $address, $key, $c->getAdminEmail(), $c->getName()
         );
     }
 
     public function applyOrganisationRegistered(OrganisationRegistered $e) {
-        $this->organisations[$e->getAdminEmail()] = $e->getName();
+        $this->accounts[$e->getAdminEmail()] = $e->getAddress();
+        $this->organisations[$e->getName()] = $e->getAddress();
+        $this->creditors[(string)$e->getAddress()][] = $e->getAddress();
     }
 
     private function guardUniqueEmail($email) {
-        if (isset($this->organisations[$email])) {
-            throw new \Exception('An organisation with this email address is already registered.');
-        }
-        if (in_array($email, $this->accounts)) {
-            throw new \Exception('An account with this email address was already created.');
+        if (isset($this->accounts[$email])) {
+            throw new \Exception('An account with this email address already exists.');
         }
     }
 
     private function guardUniqueName($name) {
-        if (in_array(strtolower($name), array_map('strtolower', $this->organisations))) {
+        if (in_array(strtolower($name), array_map('strtolower', array_keys($this->organisations)))) {
             throw new \Exception('An organisation with this name is already registered.');
         }
     }
 
     public function handleLogIn(LogIn $c) {
-        if (!in_array($c->getEmail(), $this->accounts) && !isset($this->organisations[$c->getEmail()])) {
+        if (!isset($this->accounts[$c->getEmail()])) {
             throw new \Exception('No account with this email address exists.');
         }
 
         return new TokenGenerated(
             Time::now(),
             self::tokenFromBinary($this->groupcash->generateKey()),
+            $this->accounts[$c->getEmail()],
             $c->getEmail()
         );
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getAddress();
     }
 
     public function handleLogOut(LogOut $c) {
@@ -120,23 +113,24 @@ class SocialHours {
     }
 
     public function handleAuthorizeCreditor(AuthorizeCreditor $c) {
-        $email = $this->guardValidToken($c->getToken());
+        $organisation = $this->guardValidToken($c->getToken());
 
-        if (!isset($this->organisations[$email])) {
+        if (!in_array($organisation, $this->organisations)) {
             throw new \Exception('Only administrators of organisations can authorize creditors.');
         }
 
-        $this->guardExistingAccount($c->getCreditorEmail());
+        $this->guardExistingAccount($c->getCreditor());
+        $this->guardNotAdministrator($c->getCreditor());
 
         return new CreditorAuthorized(
             Time::now(),
-            $this->organisations[$email],
-            $c->getCreditorEmail()
+            $organisation,
+            $this->getAddressOfAccount($c->getCreditor())
         );
     }
 
     public function applyCreditorAuthorized(CreditorAuthorized $e) {
-        $this->creditors[$e->getOrganisation()][] = $e->getCreditorEmail();
+        $this->creditors[(string)$e->getOrganisation()][] = $e->getCreditor();
     }
 
     private function guardValidToken(Token $token) {
@@ -148,35 +142,46 @@ class SocialHours {
     }
 
     public function handleCreditHours(CreditHours $c) {
-        $email = $this->guardValidToken($c->getToken());
+        $creditor = $this->guardValidToken($c->getToken());
 
-        if (!$this->isAdministrator($email, $c->getOrganisation()) && !$this->isCreditor($email, $c->getOrganisation())) {
+        if (!$this->canCreditHours($creditor, $c->getOrganisation())) {
             throw new \Exception('Only creditors and administrators can credit hours.');
         }
 
-        $this->guardExistingAccount($c->getVolunteerEmail());
+        $this->guardExistingAccount($c->getVolunteer());
 
         return new HoursCredited(
             Time::now(),
-            $c->getOrganisation(),
-            $email,
-            $c->getVolunteerEmail(),
+            $creditor,
+            $this->getAddressOfOrganisation($c->getOrganisation()),
+            $this->getAddressOfAccount($c->getVolunteer()),
             $c->getDescription(),
             $c->getMinutes()
         );
     }
 
-    private function guardExistingAccount($email) {
-        if (!in_array($email, $this->accounts)) {
+    private function canCreditHours(Binary $address, OrganisationIdentifier $organisation) {
+        $organisationAddress = (string)$this->getAddressOfOrganisation($organisation);
+        return isset($this->creditors[$organisationAddress]) && in_array($address, $this->creditors[$organisationAddress]);
+    }
+
+    private function getAddressOfAccount(AccountIdentifier $account) {
+        return $this->accounts[$account->getEmail()];
+    }
+
+    private function getAddressOfOrganisation(OrganisationIdentifier $organisation) {
+        return $this->organisations[$organisation->getName()];
+    }
+
+    private function guardExistingAccount(AccountIdentifier $account) {
+        if (!isset($this->accounts[$account->getEmail()])) {
             throw new \Exception('No account was created with this email address.');
         }
     }
 
-    private function isCreditor($email, $organisation) {
-        return isset($this->creditors[$organisation]) && in_array($email, $this->creditors[$organisation]);
-    }
-
-    private function isAdministrator($email, $organisation) {
-        return isset($this->organisations[$email]) && $this->organisations[$email] == $organisation;
+    private function guardNotAdministrator(AccountIdentifier $accountIdentifier) {
+        if (in_array($this->getAddressOfAccount($accountIdentifier), $this->organisations)) {
+            throw new \Exception('Cannot authorize administrators as creditors.');
+        }
     }
 }

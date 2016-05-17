@@ -1,5 +1,8 @@
 <?php
 namespace groupcash\socialhours;
+
+use groupcash\socialhours\model\AccountIdentifier;
+use groupcash\socialhours\model\OrganisationIdentifier;
 use groupcash\socialhours\model\Token;
 
 /**
@@ -9,35 +12,28 @@ class CreditHours {
 
     /** @var Token */
     private $token;
-    /** @var string */
-    private $volunteerEmail;
+    /** @var OrganisationIdentifier */
+    private $organisation;
+    /** @var AccountIdentifier */
+    private $volunteer;
     /** @var string */
     private $description;
     /** @var int */
     private $minutes;
-    /** @var string */
-    private $organisation;
 
     /**
      * @param Token $token
-     * @param string $organisation
-     * @param string $volunteerEmail
+     * @param OrganisationIdentifier $organisation
+     * @param AccountIdentifier $volunteer
      * @param string $description
      * @param int $minutes
      */
-    public function __construct(Token $token, $organisation, $volunteerEmail, $description, $minutes) {
+    public function __construct(Token $token, OrganisationIdentifier $organisation, AccountIdentifier $volunteer, $description, $minutes) {
         $this->token = $token;
-        $this->volunteerEmail = $volunteerEmail;
+        $this->volunteer = $volunteer;
         $this->description = $description;
         $this->minutes = $minutes;
         $this->organisation = $organisation;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrganisation() {
-        return $this->organisation;
     }
 
     /**
@@ -48,10 +44,17 @@ class CreditHours {
     }
 
     /**
-     * @return string
+     * @return OrganisationIdentifier
      */
-    public function getVolunteerEmail() {
-        return $this->volunteerEmail;
+    public function getOrganisation() {
+        return $this->organisation;
+    }
+
+    /**
+     * @return AccountIdentifier
+     */
+    public function getVolunteer() {
+        return $this->volunteer;
     }
 
     /**

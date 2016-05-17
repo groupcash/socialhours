@@ -1,5 +1,7 @@
 <?php
 namespace groupcash\socialhours;
+
+use groupcash\socialhours\model\AccountIdentifier;
 use groupcash\socialhours\model\Token;
 
 /**
@@ -9,16 +11,16 @@ class AuthorizeCreditor {
 
     /** @var Token */
     private $token;
-    /** @var string */
-    private $creditorEmail;
+    /** @var AccountIdentifier */
+    private $creditor;
 
     /**
      * @param Token $token
-     * @param string $creditorEmail
+     * @param AccountIdentifier $creditor
      */
-    public function __construct(Token $token, $creditorEmail) {
+    public function __construct(Token $token, AccountIdentifier $creditor) {
         $this->token = $token;
-        $this->creditorEmail = $creditorEmail;
+        $this->creditor = $creditor;
     }
 
     /**
@@ -29,9 +31,9 @@ class AuthorizeCreditor {
     }
 
     /**
-     * @return string
+     * @return AccountIdentifier
      */
-    public function getCreditorEmail() {
-        return $this->creditorEmail;
+    public function getCreditor() {
+        return $this->creditor;
     }
 }

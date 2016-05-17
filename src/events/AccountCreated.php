@@ -18,12 +18,12 @@ class AccountCreated {
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $email
      * @param Binary $address
      * @param Binary $key
+     * @param string $email
      * @param null|string $name
      */
-    public function __construct(\DateTimeImmutable $when, $email, Binary $address, Binary $key, $name = null) {
+    public function __construct(\DateTimeImmutable $when, Binary $address, Binary $key, $email, $name = null) {
         $this->when = $when;
         $this->email = $email;
         $this->address = $address;
