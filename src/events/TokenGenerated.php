@@ -1,21 +1,23 @@
 <?php
 namespace groupcash\socialhours\events;
 
+use groupcash\socialhours\model\Token;
+
 class TokenGenerated {
 
     /** @var \DateTimeImmutable */
     private $when;
-    /** @var string */
+    /** @var Token */
     private $token;
     /** @var string */
     private $email;
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $token
+     * @param Token $token
      * @param string $email
      */
-    public function __construct(\DateTimeImmutable $when, $token, $email) {
+    public function __construct(\DateTimeImmutable $when, Token $token, $email) {
         $this->when = $when;
         $this->token = $token;
         $this->email = $email;
@@ -29,7 +31,7 @@ class TokenGenerated {
     }
 
     /**
-     * @return string
+     * @return Token
      */
     public function getToken() {
         return $this->token;

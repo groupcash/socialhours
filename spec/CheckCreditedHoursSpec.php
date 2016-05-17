@@ -9,12 +9,13 @@ use groupcash\socialhours\events\OrganisationRegistered;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\model\Time;
+use groupcash\socialhours\model\Token;
 use groupcash\socialhours\projections\CreditedHours;
 
 class CheckCreditedHoursSpec extends SocialHoursSpecification {
 
     function invalidToken() {
-        $this->when(new CheckCreditedHours('wrong token'));
+        $this->when(new CheckCreditedHours(new Token('wrong token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [] && $p->getTotalHours() == 0;
         });
@@ -23,9 +24,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
     function successAsCreditor() {
         $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
         $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
                 new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30)
@@ -37,9 +38,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
         $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
         $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'Two', 45));
         $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getTotalHours() == 1.25;
         });
@@ -47,9 +48,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
 
     function notCreditor() {
         $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [];
         });
@@ -62,9 +63,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
         $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
         $this->given(new CreditorAuthorized(Time::now(), 'Bar', 'c@foo'));
 
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
                 new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30),
@@ -79,9 +80,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
 
         $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
 
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
                 new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30)
@@ -95,9 +96,9 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
 
         $this->given(new OrganisationRegistered(Time::now(), 'Foo', 'admin@foo', new Binary('foo'), new Binary('foo key')));
 
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'admin@foo'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'admin@foo'));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
                 new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30)
@@ -108,10 +109,10 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
     function invalidatedToken() {
         $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
         $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new TokenGenerated(Time::now(), 'my token', 'c@foo'));
-        $this->given(new TokenDestroyed(Time::now(), 'my token'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo'));
+        $this->given(new TokenDestroyed(Time::now(), new Token('my token')));
 
-        $this->when(new CheckCreditedHours('my token'));
+        $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [];
         });

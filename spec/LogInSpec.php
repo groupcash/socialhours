@@ -8,11 +8,12 @@ use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\LogIn;
 use groupcash\socialhours\model\SocialHours;
 use groupcash\socialhours\model\Time;
+use groupcash\socialhours\model\Token;
 use rtens\mockster\arguments\Argument;
 use rtens\mockster\Mockster;
 
 /**
- * @property string token
+ * @property Token token
  */
 class LogInSpec extends SocialHoursSpecification {
 
@@ -59,7 +60,7 @@ class LogInSpec extends SocialHoursSpecification {
     function sendEmail() {
         $this->when(new LogIn('foo@bar.com'));
         Mockster::stub($this->postOffice->send(
-            'foo@bar.com', Argument::string(), Argument::contains($this->token)
+            'foo@bar.com', Argument::string(), Argument::contains((string)$this->token)
         ))->shouldHave()->beenCalled(1);
     }
 }

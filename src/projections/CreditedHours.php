@@ -7,10 +7,11 @@ use groupcash\socialhours\events\HoursCredited;
 use groupcash\socialhours\events\OrganisationRegistered;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
+use groupcash\socialhours\model\Token;
 
 class CreditedHours {
 
-    /** @var string */
+    /** @var Token */
     private $token;
     /** @var string Email indexed by token */
     private $activeTokens;
@@ -29,11 +30,11 @@ class CreditedHours {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
     }
 
     public function applyTokenDestroyed(TokenDestroyed $e) {
-        unset($this->activeTokens[$e->getToken()]);
+        unset($this->activeTokens[(string)$e->getToken()]);
     }
 
     public function applyCreditorAuthorized(CreditorAuthorized $e) {
@@ -61,13 +62,13 @@ class CreditedHours {
     private function filteredHistory() {
         return array_filter($this->history, function (HoursCredited $e) {
             return
-                isset($this->activeTokens[$this->token])
+                isset($this->activeTokens[(string)$this->token])
                 && (
-                    isset($this->creditors[$this->activeTokens[$this->token]])
-                    && in_array($e->getOrganisation(), $this->creditors[$this->activeTokens[$this->token]])
+                    isset($this->creditors[$this->activeTokens[(string)$this->token]])
+                    && in_array($e->getOrganisation(), $this->creditors[$this->activeTokens[(string)$this->token]])
                     ||
-                    isset($this->organisations[$this->activeTokens[$this->token]])
-                    && $this->organisations[$this->activeTokens[$this->token]] == $e->getOrganisation()
+                    isset($this->organisations[$this->activeTokens[(string)$this->token]])
+                    && $this->organisations[$this->activeTokens[(string)$this->token]] == $e->getOrganisation()
                 );
         });
     }

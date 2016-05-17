@@ -1,27 +1,28 @@
 <?php
 namespace groupcash\socialhours;
+use groupcash\socialhours\model\Token;
 
 /**
  * Authorizes an account to be able to credit social hours in the name of an organisation.
  */
 class AuthorizeCreditor {
 
-    /** @var string */
+    /** @var Token */
     private $token;
     /** @var string */
     private $creditorEmail;
 
     /**
-     * @param string $token
+     * @param Token $token
      * @param string $creditorEmail
      */
-    public function __construct($token, $creditorEmail) {
+    public function __construct(Token $token, $creditorEmail) {
         $this->token = $token;
         $this->creditorEmail = $creditorEmail;
     }
 
     /**
-     * @return string
+     * @return Token
      */
     public function getToken() {
         return $this->token;

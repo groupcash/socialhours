@@ -1,18 +1,20 @@
 <?php
 namespace groupcash\socialhours\events;
 
+use groupcash\socialhours\model\Token;
+
 class TokenDestroyed {
 
     /** @var \DateTimeImmutable */
     private $when;
-    /** @var string */
+    /** @var Token */
     private $token;
 
     /**
      * @param \DateTimeImmutable $when
-     * @param string $token
+     * @param Token $token
      */
-    public function __construct(\DateTimeImmutable $when, $token) {
+    public function __construct(\DateTimeImmutable $when, Token $token) {
         $this->when = $when;
         $this->token = $token;
     }
@@ -25,7 +27,7 @@ class TokenDestroyed {
     }
 
     /**
-     * @return string
+     * @return Token
      */
     public function getToken() {
         return $this->token;

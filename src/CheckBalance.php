@@ -1,23 +1,24 @@
 <?php
 namespace groupcash\socialhours;
+use groupcash\socialhours\model\Token;
 
 /**
  * Lists the received social hours of an account.
  */
 class CheckBalance {
 
-    /** @var string */
+    /** @var Token */
     private $token;
 
     /**
-     * @param string $token
+     * @param Token $token
      */
-    public function __construct($token) {
+    public function __construct(Token $token) {
         $this->token = $token;
     }
 
     /**
-     * @return string
+     * @return Token
      */
     public function getToken() {
         return $this->token;

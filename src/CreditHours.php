@@ -1,12 +1,13 @@
 <?php
 namespace groupcash\socialhours;
+use groupcash\socialhours\model\Token;
 
 /**
  * Credits an amount of social hours to an account.
  */
 class CreditHours {
 
-    /** @var string */
+    /** @var Token */
     private $token;
     /** @var string */
     private $volunteerEmail;
@@ -18,13 +19,13 @@ class CreditHours {
     private $organisation;
 
     /**
-     * @param string $token
+     * @param Token $token
      * @param string $organisation
      * @param string $volunteerEmail
      * @param string $description
      * @param int $minutes
      */
-    public function __construct($token, $organisation, $volunteerEmail, $description, $minutes) {
+    public function __construct(Token $token, $organisation, $volunteerEmail, $description, $minutes) {
         $this->token = $token;
         $this->volunteerEmail = $volunteerEmail;
         $this->description = $description;
@@ -40,7 +41,7 @@ class CreditHours {
     }
 
     /**
-     * @return string
+     * @return Token
      */
     public function getToken() {
         return $this->token;

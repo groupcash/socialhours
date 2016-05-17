@@ -5,10 +5,11 @@ use groupcash\socialhours\CheckBalance;
 use groupcash\socialhours\events\HoursCredited;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
+use groupcash\socialhours\model\Token;
 
 class Balance {
 
-    /** @var string */
+    /** @var Token */
     private $token;
     /** @var string Email indexed by token */
     private $activeTokens;
@@ -23,11 +24,11 @@ class Balance {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
     }
 
     public function applyTokenDestroyed(TokenDestroyed $e) {
-        unset($this->activeTokens[$e->getToken()]);
+        unset($this->activeTokens[(string)$e->getToken()]);
     }
 
     public function applyHoursCredited(HoursCredited $e) {
@@ -47,8 +48,8 @@ class Balance {
     private function filteredHistory() {
         return array_filter($this->history, function (HoursCredited $e) {
             return
-                isset($this->activeTokens[$this->token])
-                && $e->getVolunteerEmail() == $this->activeTokens[$this->token];
+                isset($this->activeTokens[(string)$this->token])
+                && $e->getVolunteerEmail() == $this->activeTokens[(string)$this->token];
         });
     }
 }

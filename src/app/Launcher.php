@@ -13,11 +13,15 @@ use groupcash\socialhours\LogIn;
 use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
+use groupcash\socialhours\model\Token;
 use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\projections\CreditedHours;
 use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
+use rtens\domin\delivery\web\fields\AdapterField;
+use rtens\domin\delivery\web\fields\StringField;
 use rtens\domin\delivery\web\WebApplication;
+use rtens\domin\Parameter;
 use rtens\domin\reflection\GenericObjectAction;
 use watoki\curir\WebDelivery;
 use watoki\karma\implementations\aggregates\ObjectAggregateFactory;
@@ -25,6 +29,7 @@ use watoki\karma\implementations\GenericApplication;
 use watoki\karma\implementations\listeners\ObjectListener;
 use watoki\karma\implementations\projections\ObjectProjectionFactory;
 use watoki\karma\stores\EventStore;
+use watoki\reflect\type\ClassType;
 
 class Launcher {
 
@@ -71,15 +76,30 @@ class Launcher {
     public function run() {
         WebDelivery::quickResponse(IndexResource::class, WebApplication::init(function (WebApplication $app) {
             $app->setNameAndBrand('Social Hours');
-            foreach ($this->findActions() as $class) {
-                $this->addAction($app, $class);
-            }
-            foreach (self::$actionGroups as $group => $actions) {
-                foreach ($actions as $action) {
-                    $app->groups->put($this->makeActionId($action), $group);
-                }
-            }
+            $this->addActions($app);
+
+            $app->fields->add((new AdapterField(new StringField()))
+                ->setHandles(function (Parameter $parameter) {
+                    return $parameter->getType() == new ClassType(Token::class);
+                })
+                ->setTransformParameter(function (Parameter $parameter) {
+                    return $parameter->withType(new ClassType(Token::class));
+                })
+                ->setAfterInflate(function ($value) {
+                    return new Token($value);
+                }));
         }, WebDelivery::init()));
+    }
+
+    private function addActions(WebApplication $app) {
+        foreach ($this->findActions() as $class) {
+            $this->addAction($app, $class);
+        }
+        foreach (self::$actionGroups as $group => $actions) {
+            foreach ($actions as $action) {
+                $app->groups->put($this->makeActionId($action), $group);
+            }
+        }
     }
 
     private function addAction(WebApplication $app, $class) {
@@ -96,7 +116,7 @@ class Launcher {
             $postOffice->send(
                 $e->getEmail(),
                 'Log-in token',
-                $e->getToken()
+                (string)$e->getToken()
             );
         }, TokenGenerated::class);
     }
@@ -104,6 +124,7 @@ class Launcher {
     private function findActions() {
         $classes = get_declared_classes();
         foreach (glob(__DIR__ . '/../*.php') as $file) {
+            /** @noinspection PhpIncludeInspection */
             include_once $file;
         }
         return array_diff(get_declared_classes(), $classes);

@@ -33,7 +33,7 @@ class SocialHours {
     }
 
     public static function tokenFromBinary($binary) {
-        return substr(str_replace(['=', '/', '+'], '', (string)$binary), -16);
+        return new Token(substr(str_replace(['=', '/', '+'], '', (string)$binary), -16));
     }
 
     public function handleCreateAccount(CreateAccount $c) {
@@ -103,7 +103,7 @@ class SocialHours {
     }
 
     public function applyTokenGenerated(TokenGenerated $e) {
-        $this->activeTokens[$e->getToken()] = $e->getEmail();
+        $this->activeTokens[(string)$e->getToken()] = $e->getEmail();
     }
 
     public function handleLogOut(LogOut $c) {
@@ -116,7 +116,7 @@ class SocialHours {
     }
 
     public function applyTokenDestroyed(TokenDestroyed $e) {
-        unset($this->activeTokens[$e->getToken()]);
+        unset($this->activeTokens[(string)$e->getToken()]);
     }
 
     public function handleAuthorizeCreditor(AuthorizeCreditor $c) {
@@ -139,12 +139,12 @@ class SocialHours {
         $this->creditors[$e->getOrganisation()][] = $e->getCreditorEmail();
     }
 
-    private function guardValidToken($token) {
-        if (!isset($this->activeTokens[$token])) {
+    private function guardValidToken(Token $token) {
+        if (!isset($this->activeTokens[(string)$token])) {
             throw new \Exception('Invalid token.');
         }
 
-        return $this->activeTokens[$token];
+        return $this->activeTokens[(string)$token];
     }
 
     public function handleCreditHours(CreditHours $c) {
