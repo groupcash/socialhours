@@ -8,20 +8,18 @@ use groupcash\socialhours\CheckBalance;
 use groupcash\socialhours\CheckCreditedHours;
 use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\CreditHours;
+use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\LogIn;
 use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
-use groupcash\socialhours\model\Token;
 use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\projections\CreditedHours;
 use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
-use rtens\domin\delivery\web\fields\AdapterField;
-use rtens\domin\delivery\web\fields\StringField;
 use rtens\domin\delivery\web\WebApplication;
-use rtens\domin\Parameter;
+use rtens\domin\reflection\GenericMethodAction;
 use rtens\domin\reflection\GenericObjectAction;
 use watoki\curir\WebDelivery;
 use watoki\karma\implementations\aggregates\ObjectAggregateFactory;
@@ -29,12 +27,8 @@ use watoki\karma\implementations\GenericApplication;
 use watoki\karma\implementations\listeners\ObjectListener;
 use watoki\karma\implementations\projections\ObjectProjectionFactory;
 use watoki\karma\stores\EventStore;
-use watoki\reflect\type\ClassType;
 
 class Launcher {
-
-    /** @var \watoki\karma\Application */
-    public $application;
 
     private static $actionGroups = [
         'Reporting' => [
@@ -53,7 +47,13 @@ class Launcher {
         ]
     ];
 
-    public function __construct(EventStore $store, Algorithm $algorithm, PostOffice $postOffice) {
+    /** @var \watoki\karma\Application */
+    public $application;
+    /** @var Session */
+    private $session;
+
+    public function __construct(EventStore $store, Algorithm $algorithm, PostOffice $postOffice, Session $session) {
+        $this->session = $session;
         $this->application = (new GenericApplication($store,
             new ObjectAggregateFactory(function () use ($algorithm, $postOffice) {
                 return new SocialHours(new Groupcash($algorithm));
@@ -70,7 +70,8 @@ class Launcher {
             ->setCommandCondition(function ($command) {
                 return substr((new \ReflectionClass($command))->getShortName(), 0, 5) !== 'Check';
             })
-            ->addListener($this->tokenGeneratedListener($postOffice));
+            ->addListener($this->tokenGeneratedListener($postOffice))
+            ->addListener($this->logOutListener());
     }
 
     public function run() {
@@ -78,16 +79,7 @@ class Launcher {
             $app->setNameAndBrand('Social Hours');
             $this->addActions($app);
 
-            $app->fields->add((new AdapterField(new StringField()))
-                ->setHandles(function (Parameter $parameter) {
-                    return $parameter->getType() == new ClassType(Token::class);
-                })
-                ->setTransformParameter(function (Parameter $parameter) {
-                    return $parameter->withType(new ClassType(Token::class));
-                })
-                ->setAfterInflate(function ($value) {
-                    return new Token($value);
-                }));
+            $app->fields->add(new TokenField($this->session));
         }, WebDelivery::init()));
     }
 
@@ -100,6 +92,12 @@ class Launcher {
                 $app->groups->put($this->makeActionId($action), $group);
             }
         }
+
+        $app->actions->add('startSession', new GenericMethodAction($this->session, 'start', $app->types, $app->parser));
+        $app->groups->put('startSession', 'Access');
+
+        $app->actions->add('stopSession', new GenericMethodAction($this->session, 'stop', $app->types, $app->parser));
+        $app->groups->put('stopSession', 'Access');
     }
 
     private function addAction(WebApplication $app, $class) {
@@ -119,6 +117,12 @@ class Launcher {
                 (string)$e->getToken()
             );
         }, TokenGenerated::class);
+    }
+
+    private function logOutListener() {
+        return new ObjectListener(function () {
+            $this->session->stop();
+        }, TokenDestroyed::class);
     }
 
     private function findActions() {

@@ -3,6 +3,7 @@ namespace spec\groupcash\socialhours;
 
 use groupcash\php\algorithms\FakeAlgorithm;
 use groupcash\socialhours\app\Launcher;
+use groupcash\socialhours\app\Session;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\Time;
 use rtens\mockster\Mockster;
@@ -25,7 +26,7 @@ class SocialHoursSpecification extends Specification {
         parent::__construct(function (EventStore $store) {
             /** @var PostOffice $postOffice */
             $postOffice = Mockster::mock($this->postOffice);
-            return (new Launcher($store, $this->algorithm, $postOffice))->application;
+            return (new Launcher($store, $this->algorithm, $postOffice, Mockster::mock(Session::class)))->application;
         });
     }
 }
