@@ -2,6 +2,7 @@
 namespace groupcash\socialhours;
 
 class LogIn {
+
     /** @var string */
     private $email;
 

@@ -3,13 +3,19 @@ namespace groupcash\socialhours\app;
 
 use groupcash\php\Groupcash;
 use groupcash\php\model\signing\Algorithm;
+use groupcash\socialhours\AuthorizeCreditor;
 use groupcash\socialhours\CheckBalance;
 use groupcash\socialhours\CheckCreditedHours;
+use groupcash\socialhours\CreateAccount;
+use groupcash\socialhours\CreditHours;
 use groupcash\socialhours\events\TokenGenerated;
+use groupcash\socialhours\LogIn;
+use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
 use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\projections\CreditedHours;
+use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericObjectAction;
@@ -24,6 +30,23 @@ class Launcher {
 
     /** @var \watoki\karma\Application */
     public $application;
+
+    private static $actionGroups = [
+        'Reporting' => [
+            CheckBalance::class,
+            CheckCreditedHours::class
+        ],
+        'Administration' => [
+            CreateAccount::class,
+            RegisterOrganisation::class,
+            AuthorizeCreditor::class,
+            CreditHours::class
+        ],
+        'Access' => [
+            LogIn::class,
+            LogOut::class
+        ]
+    ];
 
     public function __construct(EventStore $store, Algorithm $algorithm, PostOffice $postOffice) {
         $this->application = (new GenericApplication($store,
@@ -51,11 +74,16 @@ class Launcher {
             foreach ($this->findActions() as $class) {
                 $this->addAction($app, $class);
             }
+            foreach (self::$actionGroups as $group => $actions) {
+                foreach ($actions as $action) {
+                    $app->groups->put($this->makeActionId($action), $group);
+                }
+            }
         }, WebDelivery::init()));
     }
 
     private function addAction(WebApplication $app, $class) {
-        $id = (new \ReflectionClass($class))->getShortName();
+        $id = $this->makeActionId($class);
         $execute = function ($action) {
             return $this->application->handle($action);
         };
@@ -79,5 +107,9 @@ class Launcher {
             include_once $file;
         }
         return array_diff(get_declared_classes(), $classes);
+    }
+
+    private function makeActionId($class) {
+        return (new \ReflectionClass($class))->getShortName();
     }
 }
