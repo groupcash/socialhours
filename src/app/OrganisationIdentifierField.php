@@ -38,4 +38,17 @@ class OrganisationIdentifierField extends AutoCompleteField {
     public function handles(Parameter $parameter) {
         return $parameter->getType() == new ClassType(OrganisationIdentifier::class);
     }
+
+    public function inflate(Parameter $parameter, $serialized) {
+        return new OrganisationIdentifier(parent::inflate($parameter, $serialized));
+    }
+
+    /**
+     * @param Parameter $parameter
+     * @param OrganisationIdentifier|null $value
+     * @return string
+     */
+    public function render(Parameter $parameter, $value) {
+        return parent::render($parameter, $value ? $value->getName() : null);
+    }
 }
