@@ -18,9 +18,9 @@ class CreditedHours {
     private $activeTokens = [];
     /** @var HoursCredited[] */
     private $history = [];
-    /** @var string[][] Organisations indexed by address */
+    /** @var Binary[][] Organisation addresses grouped by creditor address */
     private $creditors = [];
-    /** @var string[] Name indexed by email of administrator */
+    /** @var Binary[] */
     private $organisations = [];
 
     /**
@@ -43,7 +43,7 @@ class CreditedHours {
     }
 
     public function applyOrganisationRegistered(OrganisationRegistered $e) {
-        $this->organisations[$e->getAdminEmail()] = $e->getName();
+        $this->organisations[] = $e->getAddress();
     }
 
     public function applyHoursCredited(HoursCredited $e) {
@@ -62,15 +62,20 @@ class CreditedHours {
 
     private function filteredHistory() {
         return array_filter($this->history, function (HoursCredited $e) {
-            return
-                isset($this->activeTokens[(string)$this->token])
-                && (
-                    isset($this->creditors[$this->activeTokens[(string)$this->token]])
-                    && in_array($e->getOrganisation(), $this->creditors[$this->activeTokens[(string)$this->token]])
-                    ||
-                    isset($this->organisations[$this->activeTokens[(string)$this->token]])
-                    && $this->organisations[$this->activeTokens[(string)$this->token]] == $e->getOrganisation()
-                );
+            return $this->isValidToken() && $this->isCreditorOrAdministator($e->getOrganisation());
         });
+    }
+
+    private function isValidToken() {
+        return isset($this->activeTokens[(string)$this->token]);
+    }
+
+    private function isCreditorOrAdministator(Binary $organisation) {
+        $address = (string)$this->activeTokens[(string)$this->token];
+
+        $isAdministrator = $organisation == $address;
+        $isCreditor = isset($this->creditors[$address]) && in_array($organisation, $this->creditors[$address]);
+
+        return $isAdministrator || $isCreditor;
     }
 }

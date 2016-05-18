@@ -11,13 +11,8 @@ use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\model\Time;
 use groupcash\socialhours\model\Token;
 use groupcash\socialhours\projections\CreditedHours;
-use rtens\scrut\failures\IncompleteTestFailure;
 
 class CheckCreditedHoursSpec extends SocialHoursSpecification {
-
-    function before() {
-        throw new IncompleteTestFailure();
-    }
 
     function invalidToken() {
         $this->when(new CheckCreditedHours(new Token('wrong token')));
@@ -40,10 +35,10 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
     }
 
     function sumHours() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'Two', 45));
-        $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo', 'email'));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred'), new Binary('org'), new Binary('vol'), 'One', 30));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred'), new Binary('org'), new Binary('vol'), 'Two', 45));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('org'), new Binary('cred')));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('cred'), 'cred'));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
@@ -52,8 +47,8 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
     }
 
     function notCreditor() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo', 'email'));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred'), new Binary('org'), new Binary('vol'), 'One', 30));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('cred'), 'cred'));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
@@ -62,59 +57,60 @@ class CheckCreditedHoursSpec extends SocialHoursSpecification {
     }
 
     function creditorOfManyOrganisations() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new HoursCredited(Time::now(), 'Bar', 'you@foo', 'w@foo', 'Two', 45));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred2'), new Binary('org2'), new Binary('vol2'), 'Two', 45));
 
-        $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new CreditorAuthorized(Time::now(), 'Bar', 'c@foo'));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('org1'), new Binary('cred3')));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('org2'), new Binary('cred3')));
 
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo', 'email'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('cred3'), 'cred'));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
-                new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30),
-                new HoursCredited(Time::now(), 'Bar', 'you@foo', 'w@foo', 'Two', 45)
+                new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30),
+                new HoursCredited(Time::now(), new Binary('cred2'), new Binary('org2'), new Binary('vol2'), 'Two', 45)
             ];
         });
     }
 
     function creditorOfSingleOrganisations() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new HoursCredited(Time::now(), 'Bar', 'you@foo', 'w@foo', 'Two', 45));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred2'), new Binary('org2'), new Binary('vol2'), 'Two', 45));
 
-        $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('org1'), new Binary('cred3')));
 
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo', 'email'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('cred3'), 'cred'));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
-                new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30)
+                new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30)
             ];
         });
     }
 
     function successAsAdministrator() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new HoursCredited(Time::now(), 'Bar', 'you@foo', 'w@foo', 'Two', 45));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred2'), new Binary('org2'), new Binary('vol2'), 'Two', 45));
 
-        $this->given(new OrganisationRegistered(Time::now(), 'Foo', 'admin@foo', new Binary('foo'), new Binary('foo key')));
+        $this->given(new OrganisationRegistered(Time::now(), new Binary('org1'), new Binary('org1 key'), 'org1', 'Org1'));
 
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'admin@foo', 'email'));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('org1'), 'org1'));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
         $this->then->returnShouldMatch(function (CreditedHours $p) {
             return $p->getHistory() == [
-                new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30)
+                new HoursCredited(Time::now(), new Binary('cred1'), new Binary('org1'), new Binary('vol1'), 'One', 30)
             ];
         });
     }
 
     function invalidatedToken() {
-        $this->given(new HoursCredited(Time::now(), 'Foo', 'me@foo', 'v@foo', 'One', 30));
-        $this->given(new CreditorAuthorized(Time::now(), 'Foo', 'c@foo'));
-        $this->given(new TokenGenerated(Time::now(), new Token('my token'), 'c@foo', 'email'));
+        $this->given(new HoursCredited(Time::now(), new Binary('cred'), new Binary('org'), new Binary('vol'), 'One', 30));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('org'), new Binary('cred')));
+
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('cred'), 'cred'));
         $this->given(new TokenDestroyed(Time::now(), new Token('my token')));
 
         $this->when(new CheckCreditedHours(new Token('my token')));
