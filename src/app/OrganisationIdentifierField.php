@@ -26,7 +26,7 @@ class OrganisationIdentifierField extends AutoCompleteField {
     protected function getOptions(Parameter $parameter) {
         $options = [];
         foreach ($this->organisations->getAddresses() as $address) {
-            $options[$this->organisations->getEmail($address)] = $this->organisations->getName($address);
+            $options[$this->organisations->getName($address)] = $this->organisations->getName($address);
         }
         return $options;
     }
