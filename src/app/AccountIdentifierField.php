@@ -27,7 +27,12 @@ class AccountIdentifierField extends AutoCompleteField {
     protected function getOptions(Parameter $parameter) {
         $options = [];
         foreach ($this->accounts->getAddresses() as $address) {
-            $options[$this->accounts->getEmail($address)] = $this->accounts->getEmail($address);
+            if ($this->accounts->getName($address)) {
+                $options[$this->accounts->getEmail($address)] = $this->accounts->getName($address)
+                    . ' (' . $this->accounts->getEmail($address) . ')';
+            } else {
+                $options[$this->accounts->getEmail($address)] = $this->accounts->getEmail($address);
+            }
         }
         return $options;
     }

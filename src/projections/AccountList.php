@@ -26,6 +26,14 @@ class AccountList {
         return $this->accounts[(string)$address]->getEmail();
     }
 
+    /**
+     * @param Binary $address
+     * @return null|string
+     */
+    public function getName(Binary $address) {
+        return $this->accounts[(string)$address]->getName();
+    }
+
     public function applyAccountCreated(AccountCreated $e) {
         $this->accounts[(string)$e->getAddress()] = $e;
     }
