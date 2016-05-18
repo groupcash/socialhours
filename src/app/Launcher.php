@@ -10,10 +10,12 @@ use groupcash\socialhours\CreateAccount;
 use groupcash\socialhours\CreditHours;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
+use groupcash\socialhours\ListAccounts;
 use groupcash\socialhours\LogIn;
 use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
 use groupcash\socialhours\model\SocialHours;
+use groupcash\socialhours\projections\AccountList;
 use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\projections\CreditedHours;
 use groupcash\socialhours\RegisterOrganisation;
@@ -49,6 +51,12 @@ class Launcher {
         ]
     ];
 
+    private static $queries = [
+        CheckBalance::class,
+        CheckCreditedHours::class,
+        ListAccounts::class
+    ];
+
     /** @var \watoki\karma\Application */
     public $application;
     /** @var Session */
@@ -65,12 +73,14 @@ class Launcher {
                     return new Balance($query);
                 } else if ($query instanceof CheckCreditedHours) {
                     return new CreditedHours($query);
+                } else if ($query instanceof ListAccounts) {
+                    return new AccountList();
                 }
 
                 throw new \Exception('Unknown query.');
             })))
             ->setCommandCondition(function ($command) {
-                return substr((new \ReflectionClass($command))->getShortName(), 0, 5) !== 'Check';
+                return !in_array(get_class($command), self::$queries);
             })
             ->addListener($this->tokenGeneratedListener($postOffice))
             ->addListener($this->logOutListener());
@@ -100,6 +110,8 @@ class Launcher {
 
         $app->actions->add('stopSession', new GenericMethodAction($this->session, 'stop', $app->types, $app->parser));
         $app->groups->put('stopSession', 'Access');
+
+        $app->fields->add(new AccountIdentifierField($this->application->handle(new ListAccounts())));
     }
 
     private function addAction(WebApplication $app, $class) {

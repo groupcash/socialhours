@@ -209,12 +209,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rtens/domin.git",
-                "reference": "f576123082447f34ce4889419b78bf2f5b714c2e"
+                "reference": "e04c039143c182ea232baf21da26a9f1e310bdb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rtens/domin/zipball/f576123082447f34ce4889419b78bf2f5b714c2e",
-                "reference": "f576123082447f34ce4889419b78bf2f5b714c2e",
+                "url": "https://api.github.com/repos/rtens/domin/zipball/e04c039143c182ea232baf21da26a9f1e310bdb1",
+                "reference": "e04c039143c182ea232baf21da26a9f1e310bdb1",
                 "shasum": ""
             },
             "require": {
@@ -258,11 +258,11 @@
                 "ddd",
                 "domain model"
             ],
-            "time": "2016-03-10 12:06:34"
+            "time": "2016-05-18 09:59:34"
         },
         {
             "name": "symfony/console",
-            "version": "v2.8.5",
+            "version": "v2.8.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
