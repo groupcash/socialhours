@@ -31,6 +31,7 @@ use watoki\karma\implementations\GenericApplication;
 use watoki\karma\implementations\listeners\ObjectListener;
 use watoki\karma\implementations\projections\ObjectProjectionFactory;
 use watoki\karma\stores\EventStore;
+use watoki\stores\transforming\TransformerRegistryRepository;
 
 class Launcher {
 
@@ -92,6 +93,9 @@ class Launcher {
     }
 
     public function run() {
+        TransformerRegistryRepository::getDefaultTransformerRegistry()
+            ->insert(new BinaryTransformer(TransformerRegistryRepository::getDefaultTypeMapper()));
+
         WebDelivery::quickResponse(IndexResource::class, WebApplication::init(function (WebApplication $app) {
             $app->setNameAndBrand('Social Hours');
             $this->addActions($app);
