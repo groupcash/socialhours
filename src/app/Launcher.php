@@ -11,6 +11,7 @@ use groupcash\socialhours\CreditHours;
 use groupcash\socialhours\events\TokenDestroyed;
 use groupcash\socialhours\events\TokenGenerated;
 use groupcash\socialhours\ListAccounts;
+use groupcash\socialhours\ListOrganisations;
 use groupcash\socialhours\LogIn;
 use groupcash\socialhours\LogOut;
 use groupcash\socialhours\model\PostOffice;
@@ -18,6 +19,7 @@ use groupcash\socialhours\model\SocialHours;
 use groupcash\socialhours\projections\AccountList;
 use groupcash\socialhours\projections\Balance;
 use groupcash\socialhours\projections\CreditedHours;
+use groupcash\socialhours\projections\OrganisationList;
 use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
 use rtens\domin\delivery\web\WebApplication;
@@ -54,7 +56,8 @@ class Launcher {
     private static $queries = [
         CheckBalance::class,
         CheckCreditedHours::class,
-        ListAccounts::class
+        ListAccounts::class,
+        ListOrganisations::class
     ];
 
     /** @var \watoki\karma\Application */
@@ -75,6 +78,8 @@ class Launcher {
                     return new CreditedHours($query);
                 } else if ($query instanceof ListAccounts) {
                     return new AccountList();
+                } else if ($query instanceof ListOrganisations) {
+                    return new OrganisationList();
                 }
 
                 throw new \Exception('Unknown query.');
@@ -112,6 +117,7 @@ class Launcher {
         $app->groups->put('stopSession', 'Access');
 
         $app->fields->add(new AccountIdentifierField($this->application->handle(new ListAccounts())));
+        $app->fields->add(new OrganisationIdentifierField($this->application->handle(new ListOrganisations())));
     }
 
     private function addAction(WebApplication $app, $class) {
