@@ -35,11 +35,13 @@ class Launcher {
             CheckBalance::class,
             CheckCreditedHours::class
         ],
+        'Operations' => [
+            CreditHours::class
+        ],
         'Administration' => [
             CreateAccount::class,
             RegisterOrganisation::class,
-            AuthorizeCreditor::class,
-            CreditHours::class
+            AuthorizeCreditor::class
         ],
         'Access' => [
             LogIn::class,
