@@ -101,6 +101,9 @@ class Launcher {
             $this->addActions($app);
 
             $app->fields->add(new TokenField($this->session));
+            $app->renderers->add(new AddressRenderer(
+                $this->application->handle(new ListAccounts()),
+                $this->application->handle(new ListOrganisations())));
         }, WebDelivery::init()));
     }
 
