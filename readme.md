@@ -1,4 +1,4 @@
-# Social Hours
+# Social Hours [![Build Status](https://travis-ci.org/groupcash/socialhours.png?branch=master)](https://travis-ci.org/groupcash/socialhours)
 
 The goal of *Social Hours* is to make it easy for social organisations to credit volunteers for the hours of
 labour they have donated.
