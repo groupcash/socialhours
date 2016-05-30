@@ -22,6 +22,8 @@ use groupcash\socialhours\projections\CreditedHours;
 use groupcash\socialhours\projections\OrganisationList;
 use groupcash\socialhours\RegisterOrganisation;
 use rtens\domin\delivery\web\adapters\curir\root\IndexResource;
+use rtens\domin\delivery\web\menu\ActionMenuItem;
+use rtens\domin\delivery\web\Url;
 use rtens\domin\delivery\web\WebApplication;
 use rtens\domin\reflection\GenericMethodAction;
 use rtens\domin\reflection\GenericObjectAction;
@@ -65,8 +67,11 @@ class Launcher {
     public $application;
     /** @var Session */
     private $session;
+    /** @var Url */
+    private $baseUrl;
 
-    public function __construct(EventStore $store, Algorithm $algorithm, PostOffice $postOffice, Session $session) {
+    public function __construct(EventStore $store, Algorithm $algorithm, PostOffice $postOffice, Session $session, Url $baseUrl) {
+        $this->baseUrl = $baseUrl;
         $this->session = $session;
         $this->application = (new GenericApplication($store,
             new ObjectAggregateFactory(function () use ($algorithm, $postOffice) {
@@ -118,10 +123,13 @@ class Launcher {
         }
 
         $app->actions->add('startSession', new GenericMethodAction($this->session, 'start', $app->types, $app->parser));
-        $app->groups->put('startSession', 'Access');
-
         $app->actions->add('stopSession', new GenericMethodAction($this->session, 'stop', $app->types, $app->parser));
-        $app->groups->put('stopSession', 'Access');
+
+        if (!$this->session->isStarted()) {
+            $app->menu->addRight(new ActionMenuItem('Login', 'LogIn'));
+        } else {
+            $app->menu->addRight(new ActionMenuItem('Logout', 'LogOut'));
+        }
 
         $app->fields->add(new AccountIdentifierField($this->application->handle(new ListAccounts())));
         $app->fields->add(new OrganisationIdentifierField($this->application->handle(new ListOrganisations())));
@@ -141,7 +149,8 @@ class Launcher {
             $postOffice->send(
                 $e->getEmail(),
                 'Log-in token',
-                (string)$e->getToken()
+                'Your log-in token: ' . (string)$e->getToken() . "\n" .
+                $this->baseUrl->withPath(['', 'startSession'])->withParameter('token', $e->getToken())
             );
         }, TokenGenerated::class);
     }
