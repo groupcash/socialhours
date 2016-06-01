@@ -144,13 +144,12 @@ class SocialHours {
     public function handleCreditHours(CreditHours $c) {
         $creditor = $this->guardValidToken($c->getToken());
 
-        if (!$this->canCreditHours($creditor, $c->getOrganisation())) {
-            throw new \Exception('Only creditors and administrators can credit hours.');
-        }
+        $this->guardCanCreditHours($creditor, $c->getOrganisation());
 
         $events = [];
         foreach ($c->getVolunteers() as $volunteer) {
             $this->guardExistingAccount($volunteer);
+            $this->guardIsNotSelf($creditor, $volunteer);
 
             $events[] = new HoursCredited(
                 Time::now(),
@@ -162,6 +161,18 @@ class SocialHours {
             );
         }
         return $events;
+    }
+
+    private function guardCanCreditHours($creditor, $organisation) {
+        if (!$this->canCreditHours($creditor, $organisation)) {
+            throw new \Exception('Only creditors and administrators can credit hours.');
+        }
+    }
+
+    private function guardIsNotSelf(Binary $creditor, AccountIdentifier $volunteer) {
+        if ($creditor == $this->getAddressOfAccount($volunteer)) {
+            throw new \Exception('Creditors cannot credit hours to themselves.');
+        }
     }
 
     private function canCreditHours(Binary $address, OrganisationIdentifier $organisation) {

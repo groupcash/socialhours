@@ -71,4 +71,13 @@ class CreditHoursSpec extends SocialHoursSpecification {
         $this->when->tryTo(new CreditHours(new Token('my token'), new OrganisationIdentifier('foo'), [new AccountIdentifier('bar')], 'Good work', 1));
         $this->then->shouldFail('No account was created with this email address.');
     }
+
+    function cannotCreditToSelf() {
+        $this->given(new OrganisationRegistered(Time::now(), new Binary('foo'), new Binary('foo key'), 'admin', 'foo'));
+        $this->given(new AccountCreated(Time::now(), new Binary('baz'), new Binary('baz key'), 'baz'));
+        $this->given(new CreditorAuthorized(Time::now(), new Binary('foo'), new Binary('baz')));
+        $this->given(new TokenGenerated(Time::now(), new Token('my token'), new Binary('baz'), 'email'));
+        $this->when->tryTo(new CreditHours(new Token('my token'), new OrganisationIdentifier('foo'), [new AccountIdentifier('baz')], 'Good work', 1));
+        $this->then->shouldFail('Creditors cannot credit hours to themselves.');
+    }
 }
