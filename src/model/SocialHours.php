@@ -148,16 +148,20 @@ class SocialHours {
             throw new \Exception('Only creditors and administrators can credit hours.');
         }
 
-        $this->guardExistingAccount($c->getVolunteer());
+        $events = [];
+        foreach ($c->getVolunteers() as $volunteer) {
+            $this->guardExistingAccount($volunteer);
 
-        return new HoursCredited(
-            Time::now(),
-            $creditor,
-            $this->getAddressOfOrganisation($c->getOrganisation()),
-            $this->getAddressOfAccount($c->getVolunteer()),
-            $c->getDescription(),
-            $c->getMinutes()
-        );
+            $events[] = new HoursCredited(
+                Time::now(),
+                $creditor,
+                $this->getAddressOfOrganisation($c->getOrganisation()),
+                $this->getAddressOfAccount($volunteer),
+                $c->getDescription(),
+                $c->getMinutes()
+            );
+        }
+        return $events;
     }
 
     private function canCreditHours(Binary $address, OrganisationIdentifier $organisation) {

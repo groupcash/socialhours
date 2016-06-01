@@ -14,8 +14,8 @@ class CreditHours {
     private $token;
     /** @var OrganisationIdentifier */
     private $organisation;
-    /** @var AccountIdentifier */
-    private $volunteer;
+    /** @var AccountIdentifier[] */
+    private $volunteers;
     /** @var string */
     private $description;
     /** @var int */
@@ -24,13 +24,13 @@ class CreditHours {
     /**
      * @param Token $token
      * @param OrganisationIdentifier $organisation
-     * @param AccountIdentifier $volunteer
+     * @param AccountIdentifier[] $volunteers
      * @param string $description
      * @param int $minutes
      */
-    public function __construct(Token $token, OrganisationIdentifier $organisation, AccountIdentifier $volunteer, $description, $minutes) {
+    public function __construct(Token $token, OrganisationIdentifier $organisation, array $volunteers, $description, $minutes) {
         $this->token = $token;
-        $this->volunteer = $volunteer;
+        $this->volunteers = $volunteers;
         $this->description = $description;
         $this->minutes = $minutes;
         $this->organisation = $organisation;
@@ -51,10 +51,10 @@ class CreditHours {
     }
 
     /**
-     * @return AccountIdentifier
+     * @return AccountIdentifier[]
      */
-    public function getVolunteer() {
-        return $this->volunteer;
+    public function getVolunteers() {
+        return $this->volunteers;
     }
 
     /**
